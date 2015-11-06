@@ -706,7 +706,7 @@ public class BerkeleyDBHelper
 								Field refField = refRecord.getField(null, fk.columnNameList.get(i));
 								Field field = record.getField(null, fk.rTableColumnNameList.get(i));
 								
-								if( ! refField.isEqual(field))
+								if( ( ! refField.isNull()) && ( ! refField.isEqual(field)))
 								{
 									isEqual = false;
 									break;

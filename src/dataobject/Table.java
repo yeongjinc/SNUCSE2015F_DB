@@ -102,8 +102,11 @@ public class Table implements Serializable
 		for(FK fk : foreignKeyList)
 		{
 			Table referenced = BerkeleyDBHelper.getInstance().getTable(fk.rTableName);
-			referenced.removeReferencing(name);
-			BerkeleyDBHelper.getInstance().alterTable(referenced);
+			if(referenced != null) // drop all 에서 모두 지워졌을 수 있음
+			{
+				referenced.removeReferencing(name);
+				BerkeleyDBHelper.getInstance().alterTable(referenced);
+			}
 		}
 	}
 

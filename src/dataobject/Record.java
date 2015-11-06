@@ -135,7 +135,7 @@ public class Record implements Serializable
 			if( ! (other instanceof IntValue))
 				throw new InsertTypeMismatchException();
 			
-			return ((IntValue)other).val == val;
+			return ((IntValue)other).val.equals(val);
 		}
 	}
 	

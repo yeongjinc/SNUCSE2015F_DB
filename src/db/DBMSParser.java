@@ -609,6 +609,7 @@ public class DBMSParser implements DBMSParserConstants {
       t = jj_consume_token(CHAR_STRING);
                         op.pType = PRIMITIVE_TYPE.CHAR;
                         op.sValue = t.image;
+                        op.sValue = op.sValue.substring(1, op.sValue.length()-1);
       break;
     case DATE_VALUE:
       t = jj_consume_token(DATE_VALUE);
