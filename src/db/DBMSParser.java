@@ -33,6 +33,8 @@ public class DBMSParser implements DBMSParserConstants {
                 DBMSParser parser = new DBMSParser(is);
                 parser.setPS(ps);
 
+                BerkeleyDBHelper.getInstance().openDB();
+
                 if( ! isTest)
                         ps.print(Constant.PROMPT);
                 if(isTest)
@@ -48,12 +50,14 @@ public class DBMSParser implements DBMSParserConstants {
                                 ps.println("EnvironmentLockedException occured. Perhaps didn't exit properly. Delete db/*.");
                                 parser.ReInit(is);
                         }
-                        catch (Exception e)
+                        catch(ParseException e)
                         {
-                                e.printStackTrace();
-
                                 parser.printMessage(Constant.PRINT_SYNTAX_ERROR);
                                 parser.ReInit(is); // 뼈대 코드에서 SimpleDBMSParser로 되어있는 부분을, non static function 이므로 인스턴스 parser로 변경                        }
+                        catch(Exception e)
+                        {
+                                e.printStackTrace();
+                        }
 
                         if(isTest)
                         {
@@ -499,13 +503,13 @@ public class DBMSParser implements DBMSParserConstants {
       break;
     case LEFT_PAREN:
       cond = parenthesizedBooleanExpression();
-                {if (true) return cond;}
       break;
     default:
       jj_la1[16] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+                {if (true) return cond;}
     throw new Error("Missing return statement in function");
   }
 
@@ -569,13 +573,13 @@ public class DBMSParser implements DBMSParserConstants {
       break;
     case LEGAL_IDENTIFIER:
       op = column();
-                {if (true) return op;}
       break;
     default:
       jj_la1[19] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+                {if (true) return op;}
     throw new Error("Missing return statement in function");
   }
 

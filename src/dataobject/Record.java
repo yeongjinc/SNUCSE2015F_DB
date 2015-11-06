@@ -68,7 +68,7 @@ public class Record implements Serializable
 			if(value instanceof CharValue)
 			{
 				CharValue cv = (CharValue)value;
-				if(cv.val.length() < length)
+				if(cv.val.length() > length)
 					cv.val = cv.val.substring(0, length);
 			}
 		}

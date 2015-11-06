@@ -68,16 +68,6 @@ public class BerkeleyDBHelper
 	
 	private BerkeleyDBHelper()
 	{
-		// Open DB Env or if not, create one
-		EnvironmentConfig envConfig = new EnvironmentConfig();
-		envConfig.setAllowCreate(true);
-		dbEnv = new Environment(new File("db/"), envConfig);
-		
-		// Open DB or if not, create one
-		DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setAllowCreate(true);
-		dbConfig.setSortedDuplicates(true);
-		db = dbEnv.openDatabase(null, "yeongjinDB", dbConfig);
 	}
 	
 	private String getTableKey(String tableName)
@@ -129,6 +119,25 @@ public class BerkeleyDBHelper
 	public void printLine()
 	{
 		ps.println("-------------------------------------------------");
+	}
+	
+	public void openDB()
+	{
+		if(dbEnv != null || db != null)
+		{
+			printError("Try to open again");
+		}
+		
+		// Open DB Env or if not, create one
+		EnvironmentConfig envConfig = new EnvironmentConfig();
+		envConfig.setAllowCreate(true);
+		dbEnv = new Environment(new File("db/"), envConfig);
+		
+		// Open DB or if not, create one
+		DatabaseConfig dbConfig = new DatabaseConfig();
+		dbConfig.setAllowCreate(true);
+		dbConfig.setSortedDuplicates(true);
+		db = dbEnv.openDatabase(null, "yeongjinDB", dbConfig);
 	}
 	
 	public void closeDB()
@@ -238,7 +247,7 @@ public class BerkeleyDBHelper
 		return iterate(iterator, null);
 	}
 	
-	public boolean iterate(DBIterator iterator, String search)
+	public boolean iterate(DBIterator iterator, String prefix)
 	{
 		boolean atLeastOnce = false;
 		try
@@ -252,7 +261,7 @@ public class BerkeleyDBHelper
 				String key = new String(deKey.getData(), "UTF-8");
 				String data = new String(deData.getData(), "UTF-8");
 				
-				if(search != null && ! key.contains(search))
+				if(prefix != null && ! key.startsWith(prefix))
 					continue;
 				
 				iterator.iter(key, data);
@@ -330,6 +339,7 @@ public class BerkeleyDBHelper
 				printMessage(Constant.DropReferencedTableError(table.getName()));
 				return;
 			}
+			truncate(table.getName());	// delete record
 			
 			table.deleteReferencing();
 			remove(key);
@@ -337,11 +347,11 @@ public class BerkeleyDBHelper
 		}
 		else
 		{
+			truncate(table.getName());	// delete record
+			
 			table.deleteReferencing();
 			remove(key);
 		}
-		
-		//TODO Prj3 - delete data
 	}
 	
 	public void dropTable(ArrayList<String> nameList)
@@ -358,6 +368,8 @@ public class BerkeleyDBHelper
 					dropTableInternal(t, true);
 				}
 			}, PREFIX_TABLE);
+			
+			remove(RECORD_ID_KEY);
 			
 			printMessage(Constant.DropSuccessAllTables);
 		}
@@ -787,6 +799,16 @@ public class BerkeleyDBHelper
 			printError(Constant.DebugNotReached);
 		}
 	}
+	
+	private void truncate(String tableName)
+	{
+		//FK에 대한 점검은 여기서 안함(이미 끝남)
+		
+		ArrayList<Record> recordList = getRecordList(tableName, null);
+		for(Record r : recordList)
+			deleteRecord(tableName, r.recordID);
+	}
+
 	
 	public static class SelectParam
 	{
