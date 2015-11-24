@@ -119,6 +119,26 @@ public class DMLTest
 	}
 	
 	@Test
+	public void selectComplecatedWhere()
+	{
+		assertFalse(mockMain("select fa from BasicTable where fa > 222 and fb < 'ccccd';").contains("444"));
+		assertTrue(mockMain("select fa, fc from BasicTable where fa > 222 and fb < 'ccccd';").contains("null"));
+
+		assertFalse(mockMain("select * from BasicTable where fa = 111 or (fb = 'ccccc' and fc is null);").contains("222"));
+		assertFalse(mockMain("select * from BasicTable where fa = 111 or (fb = 'ccccc' and fc is null);").contains("444"));
+		assertTrue(mockMain("select * from BasicTable where fa = 111 or (fb = 'ccccc' and fc is null);").contains("111"));
+		assertTrue(mockMain("select * from BasicTable where fa = 111 or (fb = 'ccccc' and fc is null);").contains("333"));
+		
+		assertFalse(mockMain("select * from BasicTable where fa = 111 and (fb = 'ccccc' or fc = 2015-11-11);").contains("222"));
+		assertTrue(mockMain("select * from BasicTable where fa = 111 and (fb = 'ccccc' or fc = 2015-11-11);").contains("111"));
+		
+		assertFalse(mockMain("select * from BasicTable where fb = 'ccccc' or fc = 2015-11-11 or fc is null;").contains("444"));
+		assertTrue(mockMain("select * from BasicTable where fb = 'ccccc' or fc = 2015-11-11 or fc is null;").contains("111"));
+		assertTrue(mockMain("select * from BasicTable where fb = 'ccccc' or fc = 2015-11-12 or fc is null;").contains("222"));
+		assertTrue(mockMain("select * from BasicTable where fb = 'ccccc' or fc = 2015-11-11 or fc is null;").contains("333"));
+	}
+	
+	@Test
 	public void selectJoin()
 	{
 		assertTrue(mockMain("select * from BasicTable, ATable;").contains("-300"));
