@@ -50,6 +50,4 @@ public class Student
 			throw new HighschoolRangeException();
 		this.highschoolScore = highschoolScore;
 	}
-	
-
 }

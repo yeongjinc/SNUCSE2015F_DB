@@ -18,6 +18,7 @@ public class University
 	private int capacity;
 	private char group;
 	private double weight;
+	private int applied;
 	
 	public int getID()
 	{
@@ -66,5 +67,13 @@ public class University
 		if(weight < 0.0)
 			throw new HighschoolWeightException();
 		this.weight = weight;
+	}
+	public int getApplied()
+	{
+		return applied;
+	}
+	public void setApplied(int applied)
+	{
+		this.applied = applied;
 	}
 }
