@@ -15,19 +15,20 @@ import dataobject.CustomException.HighschoolRangeException;
 import dataobject.CustomException.HighschoolWeightException;
 import dataobject.CustomException.NoStudentException;
 import dataobject.CustomException.NoUniversityException;
+import dataobject.CustomException.OverApplyException;
 import dataobject.Student;
 import dataobject.University;
 
 public class DB
 {
 	private static DB _instance = null;
-	private Connection conn;
+	private Connection conn = null;
 	
 	private DB()
 	{
 		try
 		{
-			conn = DriverManager.getConnection(Constant.SERVER_IP, Constant.USER_NAME, Constant.PASSWORD);
+			conn = DriverManager.getConnection(Constant.CONNECT_URL, Constant.USER_NAME, Constant.PASSWORD);
 		}
 		catch(SQLException e)
 		{
@@ -41,32 +42,67 @@ public class DB
 		return _instance;
 	}
 	
+	public void close()
+	{
+		if(conn != null)
+		{
+			try
+			{
+				conn.close();
+				conn = null;
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	// Just for save, not called every run
 	// Reset || Create
 	public void createDB()
 	{
 		// Delete if exists
-		String deleteAppl = "DROP TABLE IF EXIST application;";
+		String deleteAppl = "DROP TABLE IF EXISTS application;";
 		
-		String deleteStud = "DROP TABLE IF EXIST student;";
+		String deleteStud = "DROP TABLE IF EXISTS student;";
 		
-		String deleteUniv = "DROP TABLE IF EXIST university;";
+		String deleteUniv = "DROP TABLE IF EXISTS university;";
 		
-		String createStud = "CREATE TABLE student (id INT NOT NULL AUTO_INCREMENT,"
+		String createStud = "CREATE TABLE student (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
 							+ "name VARCHAR(20), csat_score INT, school_score INT);";
 		
-		String createUniv = "CREATE TABLE university (id INT NOT NULL AUTO_INCREMENT,"
-							+ "name VARCHAR(128), capacity INT, group CHAR, weight DOUBLE,"
-							+ "applied INT DEFAULT 0)";
+		String createUniv = "CREATE TABLE university (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+							+ "name VARCHAR(128), capacity INT, `group` VARCHAR(1), weight DOUBLE, "
+							+ "applied INT DEFAULT 0);";
 		
-		String createAppl = "CREATE TABLE application (id INT NOT NULL AUTO_INCREMENT,"
+		String createAppl = "CREATE TABLE application (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
 							+ "stud_id INT REFERENCES student(id), univ_id INT REFERENCES university(id));";
 		
 		try
 		{
-			String sql = deleteAppl + deleteStud + deleteUniv
-						+ createStud + createUniv + createAppl;
+			String sql = deleteAppl;
 			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.executeUpdate();
+			
+			sql = deleteStud;
+			stmt = conn.prepareStatement(sql);
+			stmt.executeUpdate();
+			
+			sql = deleteUniv;
+			stmt = conn.prepareStatement(sql);
+			stmt.executeUpdate();
+			
+			sql = createStud;
+			stmt = conn.prepareStatement(sql);
+			stmt.executeUpdate();
+			
+			sql = createUniv;
+			stmt = conn.prepareStatement(sql);
+			stmt.executeUpdate();
+			
+			sql = createAppl;
+			stmt = conn.prepareStatement(sql);
 			stmt.executeUpdate();
 		}
 		catch(SQLException e)
@@ -90,7 +126,7 @@ public class DB
 				int id = rs.getInt("id");
 				String name = rs.getString("name");
 				int cap = rs.getInt("capacity");
-				char group = rs.getString("group").charAt(0);
+				String group = rs.getString("group");
 				double weight = rs.getDouble("weight");
 				int applied = rs.getInt("applied");
 				
@@ -178,7 +214,7 @@ public class DB
 		
 		try
 		{
-			String sql = "INSERT INTO university(name, capacity, group, weight) VALUES(?, ?, ?, ?);";
+			String sql = "INSERT INTO university(name, capacity, `group`, weight) VALUES(?, ?, ?, ?);";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
 			stmt.setString(1, u.getName());
@@ -321,7 +357,7 @@ public class DB
 				int id = rs.getInt("id");
 				String name = rs.getString("name");
 				int cap = rs.getInt("capacity");
-				char group = rs.getString("group").charAt(0);
+				String group = rs.getString("group");
 				double weight = rs.getDouble("weight");
 				int applied = rs.getInt("applied");
 				
@@ -360,7 +396,7 @@ public class DB
 	}
 	
 	public boolean makeApplication(int studID, int univID)
-					throws GroupException, NoUniversityException, NoStudentException
+					throws OverApplyException, NoUniversityException, NoStudentException
 	{
 		boolean ret = false;
 		try
@@ -374,7 +410,7 @@ public class DB
 			for(University a : applied)
 			{
 				if(a.getGroup() == u.getGroup())
-					throw new GroupException();
+					throw new OverApplyException();
 			}
 			
 			// Transaction (1. insert into application 2. increase applied count in univ)
@@ -440,8 +476,8 @@ public class DB
 		{
 			University u = getUniversity(univID);
 			
-			String sql = "SELECT id, name, csat_score, school_score FROM "
-						+ "student JOIN application ON stud_id = id "
+			String sql = "SELECT S.id, name, csat_score, school_score FROM "
+						+ "student S JOIN application ON stud_id = S.id "
 						+ "WHERE univ_id = ?;";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, u.getID());
@@ -489,8 +525,8 @@ public class DB
 		{
 			Student s = getStudent(studID);
 			
-			String sql = "SELECT id, name, capacity, group, weight, applied "
-					+ "FROM university JOIN application ON univ_id = id "
+			String sql = "SELECT U.id, name, capacity, `group`, weight, applied "
+					+ "FROM university U JOIN application ON univ_id = U.id "
 					+ "WHERE stud_id = ?;";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, s.getID());
@@ -502,7 +538,7 @@ public class DB
 				int id = rs.getInt("id");
 				String name = rs.getString("name");
 				int cap = rs.getInt("capacity");
-				char group = rs.getString("group").charAt(0);
+				String group = rs.getString("group");
 				double weight = rs.getDouble("weight");
 				int applied = rs.getInt("applied");
 				

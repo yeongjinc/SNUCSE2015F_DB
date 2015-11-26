@@ -50,8 +50,12 @@ public class University
 	{
 		return group;
 	}
-	public void setGroup(char group) throws GroupException
+	public void setGroup(String str) throws GroupException
 	{
+		if(str == null || str.length() == 0 || str.length() > 1)
+			throw new GroupException();
+		char group = str.charAt(0);
+		
 		if(group != GROUP_A
 			&& group != GROUP_B
 			&& group != GROUP_C)

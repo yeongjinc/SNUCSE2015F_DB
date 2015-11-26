@@ -24,8 +24,17 @@ public class Constant
 	public static final String APPL_SUCC		= "Successfully made an application.";
 	public static final String APPL_FAIL		= "A student can apply up to one university per group.";
 	public static final String MENU_ERROR		= "Invalid action.";
-	public static final String UNIV_ID_ERROR	= "University [ID] doesn't exist.";
-	public static final String STUD_ID_ERROR	= "Student [ID] doesn't exist.";
+	private static final String _UNIV_ID_ERROR	= "University %d doesn't exist.";
+	private static final String _STUD_ID_ERROR	= "Student %d doesn't exist.";
+	public static String UNIV_ID_ERROR(int id)
+	{
+		return String.format(_UNIV_ID_ERROR, id);
+	}
+	public static String STUD_ID_ERROR(int id)
+	{
+		return String.format(_STUD_ID_ERROR, id);
+	}
+	public static final String FORMAT_ERROR		= "[CUSTOM] Wrong type value.";
 	
 	/* System Message */
 	public static final String DOUBLE_LINE 		= "============================================================";
@@ -60,6 +69,4 @@ public class Constant
 	
 	public static final String A1 = "Student ID: ";
 	public static final String A2 = "University ID: ";
-	
-
 }
