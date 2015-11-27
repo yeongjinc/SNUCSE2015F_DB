@@ -232,7 +232,7 @@ public class DB
 		return ret > 0;		// 입력되었다면 1 리턴
 	}
 	
-	public boolean removeUniversity(int id)
+	public boolean removeUniversity(int id) throws NoUniversityException
 	{
 		int ret = 0;
 		
@@ -589,7 +589,7 @@ public class DB
 						+ "student S JOIN application A ON A.stud_id = S.id "
 						+ "JOIN university U ON A.univ_id = U.id "
 						+ "WHERE univ_id = ? "
-						+ "ORDER BY total_score, school_score DESC;";
+						+ "ORDER BY total_score DESC, school_score DESC;";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, u.getID());
 			
@@ -634,7 +634,7 @@ public class DB
 				prev = s;
 			}
 			
-			int tenPercent = u.getCapacity() + 10 - 1 / 10; 
+			int tenPercent = (u.getCapacity() + 10 - 1) / 10; 
 			if(arr.size() > u.getCapacity() + tenPercent)
 			{
 				// 정원 + 10% 올림까지 초과할 경우 마지막 동점학생들을 뺸다

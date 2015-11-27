@@ -41,14 +41,14 @@ public class UI
 			catch(NumberFormatException e)
 			{
 				// 숫자 외의 값 입력
-				output.print(Constant.MENU_ERROR);
+				output.println(Constant.MENU_ERROR);
 				continue;
 			}
 			
 			// 메뉴 범위 벗어난 값 입력
 			if(menu < 1 || menu > Constant.MENUS.length)
 			{
-				output.print(Constant.MENU_ERROR);
+				output.println(Constant.MENU_ERROR);
 				continue;
 			}
 			
