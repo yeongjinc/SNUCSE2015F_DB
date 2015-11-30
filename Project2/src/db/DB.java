@@ -322,6 +322,12 @@ public class DB
 		return ret > 0;
 	}
 	
+	public void checkStudent(int studID) throws NoStudentException
+	{
+		//just check for existence
+		getStudent(studID);
+	}
+	
 	private Student getStudent(int studID) throws NoStudentException
 	{
 		try
@@ -362,7 +368,6 @@ public class DB
 			System.out.println("NEVER REACH HERE");
 			e.printStackTrace();
 		}
-		
 		
 		throw new NoStudentException(studID);
 	}

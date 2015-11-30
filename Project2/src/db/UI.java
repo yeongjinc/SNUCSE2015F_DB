@@ -14,7 +14,7 @@ public class UI
 	{
 		// Initialize
 		// DB를 데이터 없고 스키마만 있는 초기 상태로 돌림. 제출 전에 하고 제출. 
-		DB.getInstance().createDB();
+		// DB.getInstance().createDB();
 		
 		// Input Loop
 		run();
@@ -30,6 +30,7 @@ public class UI
 		
 		while(true)
 		{
+			// 메뉴 프린트
 			output.print(printMenu());
 			
 			String menuStr = input.nextLine();
@@ -111,19 +112,24 @@ public class UI
 				else if(menu == 2) // insert univ
 				{
 					// Constant.U1 등 : University name등을 묻는 프롬프트
-					output.print(Constant.U1);
-					String name = input.nextLine();
-					output.print(Constant.U2);
-					int capacity = Integer.parseInt(input.nextLine());
-					output.print(Constant.U3);
-					String group = input.nextLine();
-					output.print(Constant.U4);
-					double weight = Double.parseDouble(input.nextLine());
+					// 입력 다 받은 후가 아니라 매 입력마다 검증한다 (University의 setter에서)
 					
 					University u = new University();
+					
+					output.print(Constant.U1);
+					String name = input.nextLine();
 					u.setName(name);
+					
+					output.print(Constant.U2);
+					int capacity = Integer.parseInt(input.nextLine());
 					u.setCapacity(capacity);
+					
+					output.print(Constant.U3);
+					String group = input.nextLine();
 					u.setGroup(group);
+					
+					output.print(Constant.U4);
+					double weight = Double.parseDouble(input.nextLine());
 					u.setWeight(weight);
 					
 					boolean ret = DB.getInstance().insertUniversity(u);
@@ -142,17 +148,21 @@ public class UI
 						output.println(Constant.DELETE_UNIV_SUCC);
 				}
 				else if(menu == 4) // insert stud
-				{
+				{					
+					// 입력 다 받은 후가 아니라 매 입력마다 검증한다 (Student의 setter에서)
+
+					Student s = new Student();
+					
 					output.print(Constant.S1);
 					String name = input.nextLine();
+					s.setName(name);
+					
 					output.print(Constant.S2);
 					int sat = Integer.parseInt(input.nextLine());
+					s.setSATScore(sat);
+					
 					output.print(Constant.S3);
 					int high = Integer.parseInt(input.nextLine());
-					
-					Student s = new Student();
-					s.setName(name);
-					s.setSATScore(sat);
 					s.setHighschoolScore(high);
 					
 					boolean ret = DB.getInstance().insertStudent(s);
@@ -174,6 +184,9 @@ public class UI
 				{
 					output.print(Constant.A1);
 					int studID = Integer.parseInt(input.nextLine());
+					// student ID가 잘못되었으면 univ ID 전에 에러 처리를 하기 위해
+					DB.getInstance().checkStudent(studID);
+					
 					output.print(Constant.A2);
 					int univID = Integer.parseInt(input.nextLine());
 					
