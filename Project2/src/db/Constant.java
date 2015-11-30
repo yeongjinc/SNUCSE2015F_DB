@@ -10,6 +10,7 @@ public class Constant
 	
 	public static final String CONNECT_URL	= "jdbc:mariadb://" + SERVER_IP + "/" + DB_NAME;
 	
+	// Test in term : mysql -h 147.46.15.238 -uDB-2009-11841 -pDB-2009-11841 -D DB-2009-11841
 	
 	/* User Message */
 	public static final String INSERT_UNIV_SUCC = "A university is successfully inserted.";

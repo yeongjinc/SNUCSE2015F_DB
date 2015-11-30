@@ -13,7 +13,8 @@ public class UI
 	public static void main(String args[])
 	{
 		// Initialize
-		// DB.getInstance().createDB();
+		// DB를 데이터 없고 스키마만 있는 초기 상태로 돌림. 제출 전에 하고 제출. 
+		DB.getInstance().createDB();
 		
 		// Input Loop
 		run();

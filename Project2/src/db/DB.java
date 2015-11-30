@@ -77,7 +77,9 @@ public class DB
 							+ "applied INT DEFAULT 0);";
 		
 		String createAppl = "CREATE TABLE application (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-							+ "stud_id INT REFERENCES student(id), univ_id INT REFERENCES university(id));";
+							+ "stud_id INT, univ_id INT, "
+							+ "FOREIGN KEY(stud_id) REFERENCES student(id) ON DELETE CASCADE, "
+							+ "FOREIGN KEY(univ_id) REFERENCES university(id) ON DELETE CASCADE);";
 		
 		try
 		{
@@ -238,10 +240,15 @@ public class DB
 		
 		try
 		{
+			// Application은 ON DELETE CASCADE 옵션에 의해 자동으로 사라짐
+			// Applied는 어차피 레코드 자체가 지워지므로 상관 없음
+			
+			University u = getUniversity(id);
+			
 			String sql = "DELETE FROM university WHERE id = ?;";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
-			stmt.setInt(1, id);
+			stmt.setInt(1, u.getID());
 			
 			ret = stmt.executeUpdate();
 		}
@@ -276,16 +283,34 @@ public class DB
 		return ret > 0;
 	}
 	
-	public boolean removeStudent(int id)
+	public boolean removeStudent(int id) throws NoStudentException
 	{
 		int ret = 0;
 		
 		try
 		{
+			// Application은 ON DELETE CASCADE 옵션에 의해 자동으로 사라짐
+			// Applied는 조정해주어야 함
+			
+			Student s = getStudent(id);
+			
+			ArrayList<University> appliedUniv = getAppliedUniversity(s.getID());
+			for(University u : appliedUniv)
+			{
+				String decreaseSQL = "UPDATE university SET applied = applied - 1 WHERE "
+									+ "id = ?;";
+				PreparedStatement decreaseSTMT = conn.prepareStatement(decreaseSQL);
+				decreaseSTMT.setInt(1, u.getID());
+				if(decreaseSTMT.executeUpdate() <= 0)
+				{
+					System.out.println("NEVER REACH HERE, maybe data was contamenated");
+				}
+			}
+			
 			String sql = "DELETE FROM student WHERE id = ?;";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
-			stmt.setInt(1, id);
+			stmt.setInt(1, s.getID());
 			
 			ret = stmt.executeUpdate();
 		}
