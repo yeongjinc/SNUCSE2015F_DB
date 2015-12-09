@@ -13,12 +13,12 @@ public class UI
 	public static void main(String args[])
 	{
 		// Initialize
-		// DB를 데이터 없고 스키마만 있는 초기 상태로 돌림. 제출 전에 하고 제출. 
+		// DB를 데이터 없고 스키마만 있는 초기 상태로 돌림. 제출 전에 주석처리 하고 제출. 
 		// DB.getInstance().createDB();
 		
 		// Input Loop
 		run();
-		
+	
 		// Close
 		DB.getInstance().close();
 	}
@@ -54,7 +54,6 @@ public class UI
 				continue;
 			}
 			
-			
 			try
 			{
 				// continue, break의 사용을 위해 switch 대신 if를 사용함
@@ -74,6 +73,9 @@ public class UI
 					ArrayList<University> arr = DB.getInstance().getAllUniversities();
 					for(University u : arr)
 					{
+						// 소수점 셋째 자리에서 반올림
+						u.setWeight(Math.round(u.getWeight()*100d)/100d);
+						
 						ret += String.format("%-20s %-20s %-20s %-20s %-20s %-20s\n", 
 											u.getID(),
 											u.getName(),
@@ -239,6 +241,9 @@ public class UI
 					ArrayList<University> arr = DB.getInstance().getAppliedUniversity(studID);
 					for(University u : arr)
 					{
+						// 소수점 셋째 자리에서 반올림
+						u.setWeight(Math.round(u.getWeight()*100d)/100d);
+						
 						ret += String.format("%-20s %-20s %-20s %-20s %-20s %-20s\n", 
 											u.getID(),
 											u.getName(),

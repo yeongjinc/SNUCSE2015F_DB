@@ -69,14 +69,14 @@ public class DB
 		
 		String deleteUniv = "DROP TABLE IF EXISTS university;";
 		
-		String createStud = "CREATE TABLE student (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+		String createStud = "CREATE TABLE student (id INT PRIMARY KEY, "
 							+ "name VARCHAR(20), csat_score INT, school_score INT);";
 		
-		String createUniv = "CREATE TABLE university (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+		String createUniv = "CREATE TABLE university (id INT PRIMARY KEY, "
 							+ "name VARCHAR(128), capacity INT, `group` VARCHAR(1), weight DOUBLE, "
 							+ "applied INT DEFAULT 0);";
 		
-		String createAppl = "CREATE TABLE application (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+		String createAppl = "CREATE TABLE application ("
 							+ "stud_id INT, univ_id INT, "
 							+ "FOREIGN KEY(stud_id) REFERENCES student(id) ON DELETE CASCADE, "
 							+ "FOREIGN KEY(univ_id) REFERENCES university(id) ON DELETE CASCADE);";
@@ -216,13 +216,25 @@ public class DB
 		
 		try
 		{
-			String sql = "INSERT INTO university(name, capacity, `group`, weight) VALUES(?, ?, ?, ?);";
+			// Auto Increment 대신 ID 수동 관리. Default 1
+			u.setID(1);
+			
+			String sqlID = "SELECT MAX(`id`) AS `id` FROM university;";
+			PreparedStatement stmtID = conn.prepareStatement(sqlID);
+			ResultSet rs = stmtID.executeQuery();
+			if(rs.next())
+			{
+				u.setID(rs.getInt("id") + 1);
+			}
+			
+			String sql = "INSERT INTO university(`id`, name, capacity, `group`, weight) VALUES(?, ?, ?, ?, ?);";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
-			stmt.setString(1, u.getName());
-			stmt.setInt(2, u.getCapacity());
-			stmt.setString(3, u.getGroup() + "");
-			stmt.setDouble(4, u.getWeight());
+			stmt.setInt(1, u.getID());
+			stmt.setString(2, u.getName());
+			stmt.setInt(3, u.getCapacity());
+			stmt.setString(4, u.getGroup() + "");
+			stmt.setDouble(5, u.getWeight());
 			
 			ret = stmt.executeUpdate();
 		}
@@ -266,12 +278,24 @@ public class DB
 		
 		try
 		{
-			String sql = "INSERT INTO student(name, csat_score, school_score) VALUES(?, ?, ?);";
+			// Auto Increment 대신 ID 수동 관리. Default 1
+			s.setID(1);
+			
+			String sqlID = "SELECT MAX(`id`) AS `id` FROM student;";
+			PreparedStatement stmtID = conn.prepareStatement(sqlID);
+			ResultSet rs = stmtID.executeQuery();
+			if(rs.next())
+			{
+				s.setID(rs.getInt("id") + 1);
+			}
+			
+			String sql = "INSERT INTO student(`id`, name, csat_score, school_score) VALUES(?, ?, ?, ?);";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			
-			stmt.setString(1, s.getName());
-			stmt.setInt(2, s.getSATScore());
-			stmt.setInt(3, s.getHighschoolScore());
+			stmt.setInt(1, s.getID());
+			stmt.setString(2, s.getName());
+			stmt.setInt(3, s.getSATScore());
+			stmt.setInt(4, s.getHighschoolScore());
 			
 			ret = stmt.executeUpdate();
 		}
